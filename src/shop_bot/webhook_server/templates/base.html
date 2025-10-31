@@ -225,33 +225,62 @@
                 
                 if (!burgerCheckbox || !burgerLabel || !burgerMenu) return;
                 
-                // Открытие/закрытие по клику на label
+                // Функция для открытия/закрытия меню
+                function toggleMenu() {
+                    burgerCheckbox.checked = !burgerCheckbox.checked;
+                    updateMenuState();
+                }
+                
+                // Обработка клика и touch на label
                 burgerLabel.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    burgerCheckbox.checked = !burgerCheckbox.checked;
-                    updateMenuState();
+                    e.stopImmediatePropagation();
+                    toggleMenu();
+                });
+                
+                burgerLabel.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    toggleMenu();
+                }, { passive: false });
+                
+                // Убеждаемся, что ссылки в меню кликабельны
+                const menuLinks = burgerMenu.querySelectorAll('a');
+                menuLinks.forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        // Даем ссылке сработать нормально
+                        e.stopPropagation();
+                    });
+                    
+                    link.addEventListener('touchend', function(e) {
+                        // На touch-устройствах тоже позволяем клик
+                        e.stopPropagation();
+                        setTimeout(function() {
+                            burgerCheckbox.checked = false;
+                            updateMenuState();
+                        }, 100);
+                    }, { passive: true });
+                    
+                    // Увеличиваем область нажатия для мобильных
+                    link.style.minHeight = '44px';
+                    link.style.display = 'flex';
+                    link.style.alignItems = 'center';
                 });
                 
                 // Закрытие при клике вне меню
-                document.addEventListener('click', function(e) {
+                function handleOutsideClick(e) {
                     if (burgerCheckbox.checked && 
                         !burgerMenu.contains(e.target) && 
                         !burgerLabel.contains(e.target)) {
                         burgerCheckbox.checked = false;
                         updateMenuState();
                     }
-                });
+                }
                 
-                // Закрытие при клике на ссылку в меню
-                burgerMenu.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A') {
-                        setTimeout(function() {
-                            burgerCheckbox.checked = false;
-                            updateMenuState();
-                        }, 150);
-                    }
-                });
+                document.addEventListener('click', handleOutsideClick);
+                document.addEventListener('touchend', handleOutsideClick, { passive: true });
                 
                 // Закрытие по Escape
                 document.addEventListener('keydown', function(e) {
@@ -265,6 +294,9 @@
                     if (burgerCheckbox.checked) {
                         burgerMenu.classList.add('show');
                         burgerLabel.classList.add('active');
+                        // Убеждаемся, что меню поверх всего
+                        burgerMenu.style.zIndex = '9999';
+                        burgerMenu.style.pointerEvents = 'auto';
                     } else {
                         burgerMenu.classList.remove('show');
                         burgerLabel.classList.remove('active');

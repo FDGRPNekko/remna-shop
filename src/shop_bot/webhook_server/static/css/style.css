@@ -719,7 +719,8 @@ body {
 .bm { 
   display: none; 
   position: relative; 
-  z-index: 1001;
+  z-index: 10001 !important;
+  pointer-events: auto !important;
 }
 #burger {
 	display: none;
@@ -743,10 +744,12 @@ label.burger_img {
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,0.22);
   position: relative;
-  z-index: 1002;
+  z-index: 10002 !important;
   flex-shrink: 0;
   user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(174, 62, 201, 0.3);
+  touch-action: manipulation;
+  pointer-events: auto !important;
 }
 
 label.burger_img::before {
@@ -774,14 +777,17 @@ label.burger_img:hover {
   border: 1px solid var(--border-color);
   border-radius: calc(var(--ui-radius) + 2px);
   box-shadow: 0 12px 28px rgba(0,0,0,0.4);
-  z-index: 1100;
+  z-index: 9999 !important;
   backdrop-filter: blur(12px) saturate(140%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   animation: fadeInDown 0.2s ease-out;
   display: none;
+  pointer-events: auto !important;
+  touch-action: manipulation;
 }
 .bm .burger-menu.show {
   display: block !important;
+  pointer-events: auto !important;
 }
 @keyframes fadeInDown {
   from {
@@ -797,17 +803,36 @@ label.burger_img:hover {
 .bm .burger-menu ul { list-style: none; padding: 8px; margin: 0; }
 .bm .burger-menu li { margin: 2px 0; }
 .bm .burger-menu a {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   padding: 12px 14px;
   border-radius: 8px;
   color: var(--text-primary);
   text-decoration: none;
   transition: background-color 0.2s ease;
   font-size: 0.95rem;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(174, 62, 201, 0.2);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  z-index: 10000 !important;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 .bm .burger-menu a:hover,
-.bm .burger-menu a:active {
+.bm .burger-menu a:active,
+.bm .burger-menu a:focus {
   background: color-mix(in oklab, var(--primary-color) 18%, transparent);
+  outline: none;
+}
+.bm .burger-menu li {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
 }
 
 #burger:checked ~ .burger-menu,
@@ -845,16 +870,19 @@ body::before {
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 140px rgba(0,0,0,0.35);
     z-index: 0;
 }
+/* Убедимся, что псевдоэлементы не блокируют клики */
+html[data-bs-theme='light'] body::before { 
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 0 120px rgba(0,0,0,0.12); 
+    pointer-events: none;
+}
 
-
-html[data-bs-theme='light'] body::before { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 0 120px rgba(0,0,0,0.12); }
 
 
 body::after {
     content: "";
     position: fixed;
     inset: 0;
-    pointer-events: none;
+    pointer-events: none !important;
     
     background:
         
@@ -1510,6 +1538,12 @@ body.login-page {
 
   
   .main-header { z-index: 1000; position: relative; }
+  
+  /* Убедимся, что header-controls не перекрывает бургер-меню */
+  .header-controls {
+    z-index: 100;
+    position: relative;
+  }
   
   /* Улучшаем позиционирование бургер-меню */
   .bm .burger-menu {
