@@ -313,10 +313,15 @@ def create_webhook_app(bot_controller_instance):
                 h['latest_speedtest'] = get_latest_speedtest(h['host_name'])
             except Exception:
                 h['latest_speedtest'] = None
+        # Получаем статистику за месяц
+        admin_stats = get_admin_stats()
+        month_income = admin_stats.get('month_income', 0.0) if admin_stats else 0.0
+        
         stats = {
             "user_count": get_user_count(),
             "total_keys": get_total_keys_count(),
             "total_spent": get_total_spent_sum(),
+            "month_spent": month_income,
             "host_count": len(hosts)
         }
         
