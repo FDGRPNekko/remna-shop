@@ -294,20 +294,14 @@ async def ensure_user(
     path: str
 
     if current:
-        #current_expire = current.get("expireAt")
-        #if current_expire:
-         #   try:
-          #      current_dt = datetime.fromisoformat(current_expire.replace("Z", "+00:00"))
-           #     if current_dt > expire_at:
-           #         expire_iso = _to_iso(current_dt)
-            #except ValueError:
-            #    pass
-
-
-        #Todo Expire user
-        # При обновлении используем переданную дату (она уже корректно рассчитана)
-        # Не нужно ограничивать дату, так как логика продления теперь в create_or_update_key_on_host
-        expire_iso = _to_iso(expire_at)
+        current_expire = current.get("expireAt")
+        if current_expire:
+            try:
+                current_dt = datetime.fromisoformat(current_expire.replace("Z", "+00:00"))
+                if current_dt > expire_at:
+                    expire_iso = _to_iso(current_dt)
+            except ValueError:
+                pass
 
         logger.info(
             "Remnawave: найден пользователь %s (%s) на '%s' — обновляю срок до %s",
@@ -383,47 +377,23 @@ async def ensure_user(
 
 
 
-async def list_users(host_name: str, squad_uuid: str | None = None, size: int | None = 50000000) -> list[dict[str, Any]]:
-    all_users: list[dict[str, Any]] = []
-    page = 1
-
-    while True:
-        # ограничиваем size максимумом 1000
-        params: dict[str, Any] = {"size": min(size or 1000, 1000), "page": page}
-        if squad_uuid:
-            params["squadUuid"] = squad_uuid
-
-        response = await _request_for_host(host_name, "GET", "/api/users", params=params, expected_status=(200,))
-        payload = response.json() or {}
-
+async def list_users(host_name: str, squad_uuid: str | None = None, size: int | None = 500) -> list[dict[str, Any]]:
+    params: dict[str, Any] = {}
+    if size is not None:
+        params["size"] = size
+    if squad_uuid:
+        params["squadUuid"] = squad_uuid
+    response = await _request_for_host(host_name, "GET", "/api/users", params=params, expected_status=(200,))
+    payload = response.json() or {}
+    raw_users = []
+    if isinstance(payload, dict):
+        body = payload.get("response") if isinstance(payload.get("response"), dict) else payload
+        raw_users = body.get("users") or body.get("data") or []
+    if not isinstance(raw_users, list):
         raw_users = []
-        if isinstance(payload, dict):
-            body = payload.get("response") if isinstance(payload.get("response"), dict) else payload
-            raw_users = body.get("users") or body.get("data") or []
-
-        # 🛑 если данных нет — выходим
-        if not isinstance(raw_users, list) or len(raw_users) == 0:
-            logger.info("Данных ремны нету - выход")
-            break
-
-        all_users.extend(raw_users)
-
-        # 🟡 если меньше 1000 — последняя страница
-        if len(raw_users) < 1000:
-            logger.info("Меньше 1000 юзеров - последняя страница ремны")
-            break
-
-        page += 1
-
-        # 🧩 подстраховка от зацикливания
-        if page > 10000:
-            logger.info("ЗАщита от зацикливания - стработала")
-            break
-
-    # 🎯 фильтрация по squadUuid (оригинальная логика)
     if squad_uuid:
         filtered: list[dict[str, Any]] = []
-        for user in all_users:
+        for user in raw_users:
             squads = user.get("activeInternalSquads") or user.get("internalSquads") or []
             if isinstance(squads, list):
                 for item in squads:
@@ -437,11 +407,7 @@ async def list_users(host_name: str, squad_uuid: str | None = None, size: int | 
             elif isinstance(squads, str) and squads == squad_uuid:
                 filtered.append(user)
         return filtered
-
-    return all_users
-
-
-
+    return raw_users
 async def delete_user(user_uuid: str) -> bool:
     """Глобальный вариант (устарел): удаление без привязки к хосту.
     Сохраняется для обратной совместимости, но предпочтительно использовать host-specific путь ниже.
@@ -521,32 +487,7 @@ async def create_or_update_key_on_host(
             days = days_to_add if days_to_add is not None else int(rw_repo.get_setting('default_extension_days') or 30)
             if days <= 0:
                 days = 1
-            #target_dt = datetime.now(timezone.utc) + timedelta(days=days)
-
-            #Todo user add day
-
-            # Проверяем существующего пользователя для получения текущей даты окончания
-            current_user = await get_user_by_email(email, host_name=host_name)
-            now_dt = datetime.now(timezone.utc)
-            
-            if current_user:
-                current_expire = current_user.get("expireAt")
-                if current_expire:
-                    try:
-                        current_dt = datetime.fromisoformat(current_expire.replace("Z", "+00:00"))
-                        # Если текущая дата окончания в будущем - прибавляем дни к ней
-                        if current_dt > now_dt:
-                            target_dt = current_dt + timedelta(days=days)
-                        else:
-                            # Если текущая дата уже прошла - считаем от сегодня
-                            target_dt = now_dt + timedelta(days=days)
-                    except (ValueError, AttributeError):
-                        target_dt = now_dt + timedelta(days=days)
-                else:
-                    target_dt = now_dt + timedelta(days=days)
-            else:
-                # Новый пользователь - считаем от сегодня
-                target_dt = now_dt + timedelta(days=days)
+            target_dt = datetime.now(timezone.utc) + timedelta(days=days)
 
         traffic_limit_bytes = squad.get('default_traffic_limit_bytes')
         traffic_limit_strategy = squad.get('default_traffic_strategy') or 'NO_RESET'
