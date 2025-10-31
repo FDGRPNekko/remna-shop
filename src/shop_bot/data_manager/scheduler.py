@@ -52,17 +52,17 @@ async def send_subscription_notification(bot: Bot, user_id: int, key_id: int, ti
         time_text = format_time_left(time_left_hours)
         expiry_str = expiry_date.strftime('%d.%m.%Y в %H:%M')
         
-        #message = (
-         #   f"⚠️ **Внимание!** ⚠️\n\n"
-        #    f"Срок действия вашей подписки истекает через **{time_text}**.\n"
-         #   f"Дата окончания: **{expiry_str}**\n\n"
-         #   f"Продлите подписку, чтобы не остаться без доступа к VPN!"
-        #)
+        message = (
+            f"⚠️ **Внимание!** ⚠️\n\n"
+            f"Срок действия вашей подписки истекает через **{time_text}**.\n"
+            f"Дата окончания: **{expiry_str}**\n\n"
+            f"Продлите подписку, чтобы не остаться без доступа к VPN!"
+        )
         
-        #builder = InlineKeyboardBuilder()
-        #builder.button(text="🔑 Мои ключи", callback_data="manage_keys")
-        #builder.button(text="➕ Продлить ключ", callback_data=f"extend_key_{key_id}")
-        #builder.adjust(2)
+        builder = InlineKeyboardBuilder()
+        builder.button(text="🔑 Мои ключи", callback_data="manage_keys")
+        builder.button(text="➕ Продлить ключ", callback_data=f"extend_key_{key_id}")
+        builder.adjust(2)
         
         #await bot.send_message(chat_id=user_id, text=message, reply_markup=builder.as_markup(), parse_mode='Markdown')
         logger.debug(f"Scheduler: Отправлено уведомление пользователю {user_id} по ключу {key_id} (осталось {time_left_hours} ч).")
@@ -226,16 +226,16 @@ async def sync_keys_with_panels():
                             raw_email,
                             host_name,
                         )
-            else:
-                logger.warning(
-                    "Scheduler: Ключ '%s' (host '%s') отсутствует в Remnawave. Помечаю к удалению в локальной БД (FreezeDev).",
-                    raw_email,
-                    host_name,
+            #else:
+            #    logger.warning(
+             #       "Scheduler: Ключ '%s' (host '%s') отсутствует в Remnawave. Помечаю к удалению в локальной БД (FreezeDev).",
+             #       raw_email,
+             #       host_name,
                     
-                )
-                if rw_repo.update_key_status_from_server(raw_email, None):
-                    total_affected_records += 1
-                    continue
+             #   )
+                #if rw_repo.update_key_status_from_server(raw_email, None):
+                 #   total_affected_records += 1
+                  #  continue
 
         if remote_by_email:
             for normalized_email, (remote_email, remote_user) in remote_by_email.items():
