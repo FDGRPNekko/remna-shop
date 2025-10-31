@@ -685,18 +685,17 @@ def create_webhook_app(bot_controller_instance):
         flash(('Ключ добавлен.' if new_id else 'Ошибка при добавлении ключа.'), 'success' if new_id else 'danger')
 
 
-#FreezeDev1
         try:
             bot = _bot_controller.get_bot_instance()
             if bot and new_id:
                 text = (
-                    #'🔐 Ваш ключ готов!\n'
-                    #f'Сервер: {host_name}\n'
-                    #'Выдан администратором через панель.\n'
+                    '🔐 Ваш ключ готов!\n'
+                    f'Сервер: {host_name}\n'
+                    'Выдан администратором через панель.\n'
                 )
-                #if result and result.get('connection_string'):
-                   # cs = html_escape.escape(result['connection_string'])
-                    #text += f"\nПодключение:\n<pre><code>{cs}</code></pre>"
+                if result and result.get('connection_string'):
+                    cs = html_escape.escape(result['connection_string'])
+                    text += f"\nПодключение:\n<pre><code>{cs}</code></pre>"
                 loop = current_app.config.get('EVENT_LOOP')
                 if loop and loop.is_running():
                     asyncio.run_coroutine_threadsafe(
@@ -781,19 +780,19 @@ def create_webhook_app(bot_controller_instance):
             )
             if not key_id:
                 return jsonify({"ok": False, "error": "db_failed"}), 500
-#FreezeDev2
+
 
             try:
                 bot = _bot_controller.get_bot_instance()
                 if bot and key_id:
                     text = (
-                        #'🔐 Ваш ключ готов!\n'
-                        #f'Сервер: {host_name}\n'
-                        #'Выдан администратором через панель.\n'
+                        '🔐 Ваш ключ готов!\n'
+                        f'Сервер: {host_name}\n'
+                        'Выдан администратором через панель.\n'
                     )
-                    #if result and result.get('connection_string'):
-                        #cs = html_escape.escape(result['connection_string'])
-                        #text += f"\nПодключение:\n<pre><code>{cs}</code></pre>"
+                    if result and result.get('connection_string'):
+                        cs = html_escape.escape(result['connection_string'])
+                        text += f"\nПодключение:\n<pre><code>{cs}</code></pre>"
                     loop = current_app.config.get('EVENT_LOOP')
                     if loop and loop.is_running():
                         asyncio.run_coroutine_threadsafe(

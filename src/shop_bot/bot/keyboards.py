@@ -3,7 +3,7 @@ import hashlib
 
 from datetime import datetime
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from shop_bot.data_manager.remnawave_repository import get_setting
@@ -510,6 +510,9 @@ def create_keys_management_keyboard(keys: list) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def create_key_info_keyboard(key_id: int) -> InlineKeyboardMarkup:
+
+    
+
     builder = InlineKeyboardBuilder()
     builder.button(text="➕ Продлить этот ключ", callback_data=f"extend_key_{key_id}")
     builder.button(text="📱 Показать QR-код", callback_data=f"show_qr_{key_id}")

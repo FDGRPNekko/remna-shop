@@ -1394,7 +1394,6 @@ def get_admin_stats() -> dict:
         "total_keys": 0,
         "active_keys": 0,
         "total_income": 0.0,
-        "month_income": 0.0,
 
         "today_new_users": 0,
         "today_income": 0.0,
@@ -1430,18 +1429,6 @@ def get_admin_stats() -> dict:
             row = cursor.fetchone()
             stats["total_income"] = float(row[0] or 0.0) if row else 0.0
 
-            # Заработано за этот месяц
-            cursor.execute(
-                """
-                SELECT COALESCE(SUM(amount_rub), 0)
-                FROM transactions
-                WHERE status IN ('paid','success','succeeded')
-                  AND strftime('%Y-%m', created_date) = strftime('%Y-%m', 'now')
-                  AND LOWER(COALESCE(payment_method, '')) <> 'balance'
-                """
-            )
-            row = cursor.fetchone()
-            stats["month_income"] = float(row[0] or 0.0) if row else 0.0
 
 
             cursor.execute(

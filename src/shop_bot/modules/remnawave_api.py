@@ -294,6 +294,15 @@ async def ensure_user(
     path: str
 
     if current:
+        current_expire = current.get("expireAt")
+        if current_expire:
+            try:
+                current_dt = datetime.fromisoformat(current_expire.replace("Z", "+00:00"))
+                if current_dt > expire_at:
+                    expire_iso = _to_iso(current_dt)
+            except ValueError:
+                pass
+
         logger.info(
             "Remnawave: найден пользователь %s (%s) на '%s' — обновляю срок до %s",
             email,
@@ -368,7 +377,7 @@ async def ensure_user(
 
 
 
-async def list_users(host_name: str, squad_uuid: str | None = None, size: int | None = 10000) -> list[dict[str, Any]]:
+async def list_users(host_name: str, squad_uuid: str | None = None, size: int | None = 500) -> list[dict[str, Any]]:
     params: dict[str, Any] = {}
     if size is not None:
         params["size"] = size
@@ -478,24 +487,7 @@ async def create_or_update_key_on_host(
             days = days_to_add if days_to_add is not None else int(rw_repo.get_setting('default_extension_days') or 30)
             if days <= 0:
                 days = 1
-            # Проверяем текущий срок действия на Remnawave для правильного продления
-            current_user = await get_user_by_email(email, host_name=host_name)
-            now = datetime.now(timezone.utc)
-            if current_user and current_user.get('expireAt'):
-                try:
-                    current_expire_str = current_user.get('expireAt')
-                    current_expire_dt = datetime.fromisoformat(current_expire_str.replace('Z', '+00:00'))
-                    if current_expire_dt > now:
-                        # Продлеваем от текущего срока
-                        target_dt = current_expire_dt + timedelta(days=days)
-                    else:
-                        # Истекший срок - добавляем от текущего момента
-                        target_dt = now + timedelta(days=days)
-                except Exception:
-                    target_dt = now + timedelta(days=days)
-            else:
-                # Новый пользователь - добавляем от текущего момента
-                target_dt = now + timedelta(days=days)
+            target_dt = datetime.now(timezone.utc) + timedelta(days=days)
 
         traffic_limit_bytes = squad.get('default_traffic_limit_bytes')
         traffic_limit_strategy = squad.get('default_traffic_strategy') or 'NO_RESET'

@@ -1,4 +1,4 @@
-<div class="col-sm-6 col-lg-2">
+<div class="col-sm-6 col-lg-3">
   <div class="card">
     <div class="card-body">
       <div class="subheader">Пользователей</div>
@@ -6,7 +6,7 @@
     </div>
   </div>
 </div>
-<div class="col-sm-6 col-lg-2">
+<div class="col-sm-6 col-lg-3">
   <div class="card">
     <div class="card-body">
       <div class="subheader">Всего ключей</div>
@@ -14,7 +14,7 @@
     </div>
   </div>
 </div>
-<div class="col-sm-6 col-lg-2">
+<div class="col-sm-6 col-lg-3">
   <div class="card">
     <div class="card-body">
       <div class="subheader">Всего потрачено</div>
@@ -22,27 +22,12 @@
     </div>
   </div>
 </div>
-<div class="col-sm-6 col-lg-2">
-  <div class="card">
-    <div class="card-body">
-      <div class="subheader">За этот месяц</div>
-      <div class="h1 mb-0">{{ stats.month_spent | round(2) }} <small class="text-secondary">RUB</small></div>
-    </div>
-  </div>
-</div>
-<div class="col-sm-6 col-lg-2">
+<div class="col-sm-6 col-lg-3">
   <div class="card">
     <div class="card-body">
       <div class="subheader">Активных хостов</div>
-      <div class="h1 mb-0">{{ stats.host_count }}</div>
-    </div>
-  </div>
-</div>
-<div class="col-sm-6 col-lg-2">
-  <div class="card">
-    <div class="card-body">
-      <div class="subheader">Открытые тикеты</div>
-      <div class="h1 mb-0"><span class="status-dot status-dot-animated bg-green"></span> {{ open_tickets_count }}</div>
+      <div class="h1 mb-1">{{ stats.host_count }}</div>
+      <div class="text-secondary small">Открытые тикеты: <span class="status-dot status-dot-animated bg-green"></span> {{ open_tickets_count }}</div>
     </div>
   </div>
 </div>
