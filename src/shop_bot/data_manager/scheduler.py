@@ -233,9 +233,9 @@ async def sync_keys_with_panels():
                     host_name,
                     
                 )
-                #if rw_repo.update_key_status_from_server(raw_email, None):
-                    #total_affected_records += 1
-                    #continue
+                if rw_repo.update_key_status_from_server(raw_email, None):
+                    total_affected_records += 1
+                    continue
 
         if remote_by_email:
             for normalized_email, (remote_email, remote_user) in remote_by_email.items():
