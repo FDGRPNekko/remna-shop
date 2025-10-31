@@ -716,16 +716,25 @@ body {
 	margin: 0;
 	padding: 0;
 }
-.bm { display: none; position: absolute; right: 12px; top: 10px; }
+.bm { 
+  display: none; 
+  position: relative; 
+  z-index: 1001;
+}
 #burger {
 	display: none;
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
 }
 
-.burger-menu { display: none; }
+.burger-menu { 
+  display: none; 
+}
 label.burger_img {
   display: none;
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: color-mix(in oklab, var(--bg-surface) 85%, transparent);
@@ -733,44 +742,83 @@ label.burger_img {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+  position: relative;
+  z-index: 1002;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 label.burger_img::before {
   content: "\2630"; 
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+label.burger_img:hover {
+  background: color-mix(in oklab, var(--bg-surface) 95%, transparent);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+}
 
 .bm .burger-menu {
-  position: absolute;
-  right: 0;
-  top: 46px;
-  min-width: 200px;
+  position: fixed;
+  right: 12px;
+  top: 60px;
+  min-width: 220px;
   max-width: calc(100vw - 24px); 
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: calc(var(--ui-radius) + 2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.28);
-  z-index: 1200;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+  z-index: 1100;
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  animation: fadeInDown 0.2s ease-out;
+  display: none;
+}
+.bm .burger-menu.show {
+  display: block !important;
+}
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .bm .burger-menu a { word-break: break-word; }
 .bm .burger-menu ul { list-style: none; padding: 8px; margin: 0; }
 .bm .burger-menu li { margin: 2px 0; }
 .bm .burger-menu a {
   display: block;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   color: var(--text-primary);
   text-decoration: none;
+  transition: background-color 0.2s ease;
+  font-size: 0.95rem;
 }
-.bm .burger-menu a:hover {
+.bm .burger-menu a:hover,
+.bm .burger-menu a:active {
   background: color-mix(in oklab, var(--primary-color) 18%, transparent);
 }
 
-
-#burger:checked ~ .burger-menu { display: block; }
+#burger:checked ~ .burger-menu,
+.burger-menu[style*="block"] { 
+  display: block !important; 
+}
+#burger:checked ~ label.burger_img,
+label.burger_img.active {
+  background: color-mix(in oklab, var(--primary-color) 24%, transparent);
+  border-color: color-mix(in oklab, var(--primary-color) 50%, var(--border-color));
+}
 html, body { height: 100%; font-size: calc(16px * var(--ui-font-scale)); }
 
 html { scrollbar-gutter: stable; }
@@ -859,6 +907,20 @@ body::after {
     overflow-x: hidden;
     width: 100%;
     box-sizing: border-box;
+}
+
+@media (max-width: 992px) {
+  .container {
+    padding: 0 12px;
+    margin: 16px auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px;
+    margin: 12px auto;
+  }
 }
 
 h1 {
@@ -1188,6 +1250,15 @@ body.login-page {
 }
 
 .brand { flex: 0 0 auto; min-width: 0; display:flex; align-items:center; gap:12px; }
+.brand img { 
+    height: 56px; 
+    width: auto; 
+    max-width: 100%;
+    border-radius: var(--ui-radius); 
+    display:block; 
+    object-fit: contain; 
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25)); 
+}
 .navigation { display:flex; align-items:center; gap: 10px; flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: visible; justify-content: center; }
 .navigation::-webkit-scrollbar { display: none; }
 .navigation { -ms-overflow-style: none; scrollbar-width: none; }
@@ -1356,48 +1427,161 @@ body.login-page {
   .navigation { display: none !important; }
 
   
-  .main-header { flex-wrap: wrap; }
-  
-  .main-header { padding: 8px 12px; }
+  .main-header { 
+    flex-wrap: wrap; 
+    padding: 8px 12px; 
+    gap: 8px;
+    align-items: flex-start;
+  }
   
   .container { padding-left: 12px; padding-right: 12px; }
+
+  /* Уменьшаем логотип на мобильных */
+  .brand img { 
+    height: 40px !important; 
+    max-width: 120px;
+    object-fit: contain;
+  }
+  .brand #brand-title {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+  #brand-edit {
+    padding: 2px 6px !important;
+    font-size: 0.7rem !important;
+    flex-shrink: 0;
+  }
 
   
   .bm {
     position: relative; 
     display: flex;
     align-items: center;
-    margin-left: 0; 
-    order: 2; 
+    margin-left: auto; 
+    margin-right: 0;
+    order: 2;
+    z-index: 1001;
+    flex-shrink: 0;
   }
   .header-controls {
     order: 3;
-    margin-left: auto;
+    margin-left: 0;
     flex: 1 1 100%; 
     justify-content: flex-end; 
     flex-wrap: wrap; 
+    margin-top: 8px;
+    min-width: 0;
   }
-  .brand { order: 1; }
+  .brand { 
+    order: 1; 
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    align-items: center;
+  }
   
   .navigation { order: 4; }
-  label.burger_img { display: inline-flex; }
+  label.burger_img { 
+    display: inline-flex !important; 
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
 
   
   .header-controls { gap: 10px; }
 
   
-  .bot-control { border-right: 0; padding-right: 0; gap: 8px; }
-  .header-controls .btn, .header-controls .btn-sm { padding: 5px 10px; font-size: .9rem; }
+  .bot-control { 
+    border-right: 0; 
+    padding-right: 0; 
+    gap: 8px; 
+    flex-wrap: wrap; 
+    min-width: 0;
+  }
+  .header-controls .btn, .header-controls .btn-sm { 
+    padding: 5px 10px; 
+    font-size: .85rem; 
+    flex-shrink: 0;
+  }
 
   
-  .main-header { z-index: 20; }
+  .main-header { z-index: 1000; position: relative; }
+  
+  /* Улучшаем позиционирование бургер-меню */
+  .bm .burger-menu {
+    right: 12px;
+    top: 56px;
+  }
 }
 
 @media (max-width: 576px) {
-  
+  /* Еще больше уменьшаем логотип на очень маленьких экранах */
+  .brand img { 
+    height: 32px !important; 
+    max-width: 90px;
+  }
+  .brand #brand-title {
+    font-size: 0.8rem;
+    display: none; /* Скрываем название на очень маленьких экранах */
+  }
+  .brand {
+    gap: 8px;
+  }
+  #brand-edit {
+    display: none; /* Скрываем кнопку редактирования на маленьких экранах */
+  }
   
   .user-session-controls > span { display: none; }
-  .header-controls { gap: 8px; }
+  .header-controls { 
+    gap: 6px; 
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  
+  .bot-control {
+    font-size: 0.75rem;
+    gap: 6px;
+  }
+  .bot-control p {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .header-controls .btn, .header-controls .btn-sm { 
+    padding: 4px 8px; 
+    font-size: .75rem; 
+  }
+  
+  .main-header {
+    padding: 6px 8px !important;
+    gap: 6px;
+  }
+  
+  /* Улучшаем бургер-меню на маленьких экранах */
+  .bm .burger-menu {
+    min-width: 200px;
+    max-width: calc(100vw - 16px);
+    right: 8px;
+    top: 52px;
+  }
+  
+  label.burger_img {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+  label.burger_img::before {
+    font-size: 18px;
+  }
+  
+  .bm {
+    margin-left: auto;
+    margin-right: 0;
+  }
 }
 
 .main-footer {
@@ -2243,30 +2427,6 @@ body.login-page {
 	margin-top: 10px;
 }
 
-@media (max-width: 992px) {
-    	.navigation {
-			display: none;
-		}
-    .bm { display:block; }
-    .burger_img {
-        display:block;
-        background: url('../img/burger.png');
-        background-size: 28px 28px;
-        height: 28px; width: 28px;
-        z-index: 1100;
-        cursor: pointer;
-    }
-    
-    .header-controls { padding-right: 44px; }
-    .main-header { justify-content: flex-start; }
-	.container {
-		max-width: 93%;
-		padding: 20px;
-	}
-	.bm {
-		input + label { top: 10px; right: 12px; }
-	}
-}
 
 @media (max-width: 772px) {
 	.header-controls {

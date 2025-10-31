@@ -1670,8 +1670,9 @@ def get_user_router() -> Router:
             
             await message.delete()
             new_expiry_date = datetime.fromtimestamp(result['expiry_timestamp_ms'] / 1000)
+            subscription_url = result.get('subscription_url') or result.get('connection_string')
             final_text = get_purchase_success_text("new", get_next_key_number(user_id) -1, new_expiry_date, result['connection_string'])
-            await message.answer(text=final_text, reply_markup=keyboards.create_key_info_keyboard(new_key_id))
+            await message.answer(text=final_text, reply_markup=keyboards.create_key_info_keyboard(new_key_id, subscription_url=subscription_url))
 
         except Exception as e:
             logger.error(f"Error creating trial key for user {user_id} on host {host_name}: {e}", exc_info=True)
@@ -1696,6 +1697,7 @@ def get_user_router() -> Router:
                 return
 
             connection_string = details['connection_string']
+            subscription_url = details.get('subscription_url') or connection_string or key_data.get('subscription_url') or key_data.get('connection_string')
             expiry_date = datetime.fromisoformat(key_data['expiry_date'])
             created_date = datetime.fromisoformat(key_data['created_date'])
             
@@ -1706,7 +1708,7 @@ def get_user_router() -> Router:
             
             await callback.message.edit_text(
                 text=final_text,
-                reply_markup=keyboards.create_key_info_keyboard(key_id_to_show)
+                reply_markup=keyboards.create_key_info_keyboard(key_id_to_show, subscription_url=subscription_url)
             )
         except Exception as e:
             logger.error(f"Error showing key {key_id_to_show}: {e}")
@@ -1821,6 +1823,7 @@ def get_user_router() -> Router:
                 details = await remnawave_api.get_key_details_from_host(updated_key)
                 if details and details.get('connection_string'):
                     connection_string = details['connection_string']
+                    subscription_url = details.get('subscription_url') or connection_string or updated_key.get('subscription_url') or updated_key.get('connection_string')
                     expiry_date = datetime.fromisoformat(updated_key['expiry_date'])
                     created_date = datetime.fromisoformat(updated_key['created_date'])
                     all_user_keys = get_user_keys(callback.from_user.id)
@@ -1828,7 +1831,7 @@ def get_user_router() -> Router:
                     final_text = get_key_info_text(key_number, expiry_date, created_date, connection_string)
                     await callback.message.edit_text(
                         text=final_text,
-                        reply_markup=keyboards.create_key_info_keyboard(key_id)
+                        reply_markup=keyboards.create_key_info_keyboard(key_id, subscription_url=subscription_url)
                     )
                 else:
 
@@ -3251,12 +3254,15 @@ async def process_successful_payment(bot: Bot, metadata: dict):
         await processing_message.delete()
         
         connection_string = None
+        subscription_url = None
         new_expiry_date = None
         try:
             connection_string = result.get('connection_string') if isinstance(result, dict) else None
+            subscription_url = result.get('subscription_url') or connection_string
             new_expiry_date = datetime.fromtimestamp(result['expiry_timestamp_ms'] / 1000) if isinstance(result, dict) and 'expiry_timestamp_ms' in result else None
         except Exception:
             connection_string = None
+            subscription_url = None
             new_expiry_date = None
         
         all_user_keys = get_user_keys(user_id)
@@ -3272,7 +3278,7 @@ async def process_successful_payment(bot: Bot, metadata: dict):
         await bot.send_message(
             chat_id=user_id,
             text=final_text,
-            reply_markup=keyboards.create_key_info_keyboard(key_id)
+            reply_markup=keyboards.create_key_info_keyboard(key_id, subscription_url=subscription_url)
         )
 
         try:

@@ -216,6 +216,64 @@
                 }
                 saveBtn.addEventListener('click', save);
             })();
+            
+            // Управление бургер-меню
+            (function(){
+                const burgerCheckbox = document.getElementById('burger');
+                const burgerLabel = document.querySelector('label.burger_img');
+                const burgerMenu = document.querySelector('.burger-menu');
+                
+                if (!burgerCheckbox || !burgerLabel || !burgerMenu) return;
+                
+                // Открытие/закрытие по клику на label
+                burgerLabel.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    burgerCheckbox.checked = !burgerCheckbox.checked;
+                    updateMenuState();
+                });
+                
+                // Закрытие при клике вне меню
+                document.addEventListener('click', function(e) {
+                    if (burgerCheckbox.checked && 
+                        !burgerMenu.contains(e.target) && 
+                        !burgerLabel.contains(e.target)) {
+                        burgerCheckbox.checked = false;
+                        updateMenuState();
+                    }
+                });
+                
+                // Закрытие при клике на ссылку в меню
+                burgerMenu.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A') {
+                        setTimeout(function() {
+                            burgerCheckbox.checked = false;
+                            updateMenuState();
+                        }, 150);
+                    }
+                });
+                
+                // Закрытие по Escape
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && burgerCheckbox.checked) {
+                        burgerCheckbox.checked = false;
+                        updateMenuState();
+                    }
+                });
+                
+                function updateMenuState() {
+                    if (burgerCheckbox.checked) {
+                        burgerMenu.classList.add('show');
+                        burgerLabel.classList.add('active');
+                    } else {
+                        burgerMenu.classList.remove('show');
+                        burgerLabel.classList.remove('active');
+                    }
+                }
+                
+                // Инициализация состояния
+                updateMenuState();
+            })();
         </script>
     </body>
 </html>
