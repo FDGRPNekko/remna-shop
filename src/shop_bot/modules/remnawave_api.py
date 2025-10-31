@@ -383,39 +383,54 @@ async def ensure_user(
 
 
 
-async def list_users(host_name: str, squad_uuid: str | None = None) -> list[dict[str, Any]]:
-    page = 1
+async def list_users(host_name: str, squad_uuid: str | None = None, size: int | None = 50000000) -> list[dict[str, Any]]:
     all_users: list[dict[str, Any]] = []
+    page = 1
 
     while True:
-        params: dict[str, Any] = {"size": 1000, "page": page}
+        # ограничиваем size максимумом 1000
+        params: dict[str, Any] = {"size": min(size or 1000, 1000), "page": page}
         if squad_uuid:
             params["squadUuid"] = squad_uuid
 
         response = await _request_for_host(host_name, "GET", "/api/users", params=params, expected_status=(200,))
         payload = response.json() or {}
 
-        # Универсальный парсер для разных ответов API
-        body = payload.get("response") if isinstance(payload.get("response"), dict) else payload
-        users = body.get("users") or body.get("data") or []
+        raw_users = []
+        if isinstance(payload, dict):
+            body = payload.get("response") if isinstance(payload.get("response"), dict) else payload
+            raw_users = body.get("users") or body.get("data") or []
 
-        # Если пользователей нет — значит достигли конца
-        if not users:
+        # 🛑 если данных нет — выходим
+        if not isinstance(raw_users, list) or len(raw_users) == 0:
+            logger.info("Данных ремны нету - выход")
             break
 
-        all_users.extend(users)
+        all_users.extend(raw_users)
+
+        # 🟡 если меньше 1000 — последняя страница
+        if len(raw_users) < 1000:
+            logger.info("Меньше 1000 юзеров - последняя страница ремны")
+            break
+
         page += 1
 
-    # Фильтрация по squad_uuid (если нужна)
+        # 🧩 подстраховка от зацикливания
+        if page > 10000:
+            logger.info("ЗАщита от зацикливания - стработала")
+            break
+
+    # 🎯 фильтрация по squadUuid (оригинальная логика)
     if squad_uuid:
         filtered: list[dict[str, Any]] = []
         for user in all_users:
             squads = user.get("activeInternalSquads") or user.get("internalSquads") or []
             if isinstance(squads, list):
                 for item in squads:
-                    if isinstance(item, dict) and item.get("uuid") == squad_uuid:
-                        filtered.append(user)
-                        break
+                    if isinstance(item, dict):
+                        if item.get("uuid") == squad_uuid:
+                            filtered.append(user)
+                            break
                     elif isinstance(item, str) and item == squad_uuid:
                         filtered.append(user)
                         break
@@ -424,6 +439,7 @@ async def list_users(host_name: str, squad_uuid: str | None = None) -> list[dict
         return filtered
 
     return all_users
+
 
 
 async def delete_user(user_uuid: str) -> bool:
