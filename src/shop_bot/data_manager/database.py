@@ -2440,6 +2440,27 @@ def get_total_spent_sum() -> float:
         logging.error(f"Failed to get total spent sum: {e}")
         return 0.0
 
+
+def get_monthly_income() -> float:
+    """Получить заработанные деньги за текущий месяц (успешные транзакции, исключая баланс)."""
+    try:
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT COALESCE(SUM(amount_rub), 0.0)
+                FROM transactions
+                WHERE status IN ('paid', 'success', 'succeeded', 'completed')
+                  AND LOWER(COALESCE(payment_method, '')) <> 'balance'
+                  AND strftime('%Y-%m', COALESCE(created_date, datetime('now'))) = strftime('%Y-%m', 'now')
+                """
+            )
+            val = cursor.fetchone()
+            return (val[0] if val else 0.0) or 0.0
+    except sqlite3.Error as e:
+        logging.error(f"Failed to get monthly income: {e}")
+        return 0.0
+
 def create_pending_transaction(payment_id: str, user_id: int, amount_rub: float, metadata: dict) -> int:
     try:
         with sqlite3.connect(DB_FILE) as conn:

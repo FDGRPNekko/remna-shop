@@ -33,7 +33,7 @@ from shop_bot.data_manager import remnawave_repository as rw_repo
 from shop_bot.data_manager.remnawave_repository import (
     get_all_settings, update_setting, get_all_hosts, get_plans_for_host,
     create_host, delete_host, create_plan, delete_plan, update_plan, get_user_count,
-    get_total_keys_count, get_total_spent_sum, get_daily_stats_for_charts,
+    get_total_keys_count, get_total_spent_sum, get_monthly_income, get_daily_stats_for_charts,
     get_recent_transactions, get_paginated_transactions, get_all_users, get_user_keys,
     ban_user, unban_user, delete_user_keys, get_setting, find_and_complete_ton_transaction,
     find_and_complete_pending_transaction,
@@ -317,6 +317,7 @@ def create_webhook_app(bot_controller_instance):
             "user_count": get_user_count(),
             "total_keys": get_total_keys_count(),
             "total_spent": get_total_spent_sum(),
+            "monthly_income": get_monthly_income(),
             "host_count": len(hosts)
         }
         
@@ -358,6 +359,7 @@ def create_webhook_app(bot_controller_instance):
             "user_count": get_user_count(),
             "total_keys": get_total_keys_count(),
             "total_spent": get_total_spent_sum(),
+            "monthly_income": get_monthly_income(),
             "host_count": len(get_all_hosts())
         }
         common_data = get_common_template_data()
