@@ -294,6 +294,17 @@ async def ensure_user(
     path: str
 
     if current:
+        #current_expire = current.get("expireAt")
+        #if current_expire:
+         #   try:
+          #      current_dt = datetime.fromisoformat(current_expire.replace("Z", "+00:00"))
+           #     if current_dt > expire_at:
+           #         expire_iso = _to_iso(current_dt)
+            #except ValueError:
+            #    pass
+
+
+        #Todo Expire user
         # При обновлении используем переданную дату (она уже корректно рассчитана)
         # Не нужно ограничивать дату, так как логика продления теперь в create_or_update_key_on_host
         expire_iso = _to_iso(expire_at)
@@ -479,11 +490,13 @@ async def create_or_update_key_on_host(
         if expiry_timestamp_ms is not None:
             target_dt = datetime.fromtimestamp(expiry_timestamp_ms / 1000, tz=timezone.utc)
         else:
-            # При продлении нужно прибавлять дни к текущей дате окончания, а не к сегодняшней
             days = days_to_add if days_to_add is not None else int(rw_repo.get_setting('default_extension_days') or 30)
             if days <= 0:
                 days = 1
-            
+            #target_dt = datetime.now(timezone.utc) + timedelta(days=days)
+
+            #Todo user add day
+
             # Проверяем существующего пользователя для получения текущей даты окончания
             current_user = await get_user_by_email(email, host_name=host_name)
             now_dt = datetime.now(timezone.utc)

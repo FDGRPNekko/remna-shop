@@ -509,6 +509,8 @@ def create_keys_management_keyboard(keys: list) -> InlineKeyboardMarkup:
     builder.adjust(1)
     return builder.as_markup()
 
+#def create_key_info_keyboard(key_id: int) -> InlineKeyboardMarkup:
+
 def create_key_info_keyboard(key_id: int, subscription_url: str | None = None) -> InlineKeyboardMarkup:
     """Создает клавиатуру для информации о ключе. Если subscription_url не передан, пытается получить из БД."""
     from shop_bot.data_manager import remnawave_repository as rw_repo
@@ -521,18 +523,20 @@ def create_key_info_keyboard(key_id: int, subscription_url: str | None = None) -
                 subscription_url = key_data.get('subscription_url') or key_data.get('connection_string')
         except Exception:
             subscription_url = None
-    
+
+
     builder = InlineKeyboardBuilder()
     builder.button(text="➕ Продлить этот ключ", callback_data=f"extend_key_{key_id}")
-    
+
+       
     # Добавляем кнопку "Открыть подписку" если есть subscription_url
     if subscription_url:
         builder.button(text="🔗 Открыть подписку", url=subscription_url)
     
+
     builder.button(text="📱 Показать QR-код", callback_data=f"show_qr_{key_id}")
     builder.button(text="📖 Инструкция", callback_data=f"howto_vless_{key_id}")
     builder.button(text="⬅️ Назад к списку ключей", callback_data="manage_keys")
-    
     # Если есть кнопка "Открыть подписку", размещаем её отдельно, остальные по одной
     if subscription_url:
         builder.adjust(1, 1, 1, 1, 1)

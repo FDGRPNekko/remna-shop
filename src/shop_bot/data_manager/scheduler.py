@@ -52,19 +52,19 @@ async def send_subscription_notification(bot: Bot, user_id: int, key_id: int, ti
         time_text = format_time_left(time_left_hours)
         expiry_str = expiry_date.strftime('%d.%m.%Y в %H:%M')
         
-        message = (
-            f"⚠️ **Внимание!** ⚠️\n\n"
-            f"Срок действия вашей подписки истекает через **{time_text}**.\n"
-            f"Дата окончания: **{expiry_str}**\n\n"
-            f"Продлите подписку, чтобы не остаться без доступа к VPN!"
-        )
+        #message = (
+         #   f"⚠️ **Внимание!** ⚠️\n\n"
+        #    f"Срок действия вашей подписки истекает через **{time_text}**.\n"
+         #   f"Дата окончания: **{expiry_str}**\n\n"
+         #   f"Продлите подписку, чтобы не остаться без доступа к VPN!"
+        #)
         
-        builder = InlineKeyboardBuilder()
-        builder.button(text="🔑 Мои ключи", callback_data="manage_keys")
-        builder.button(text="➕ Продлить ключ", callback_data=f"extend_key_{key_id}")
-        builder.adjust(2)
+        #builder = InlineKeyboardBuilder()
+        #builder.button(text="🔑 Мои ключи", callback_data="manage_keys")
+        #builder.button(text="➕ Продлить ключ", callback_data=f"extend_key_{key_id}")
+        #builder.adjust(2)
         
-        await bot.send_message(chat_id=user_id, text=message, reply_markup=builder.as_markup(), parse_mode='Markdown')
+        #await bot.send_message(chat_id=user_id, text=message, reply_markup=builder.as_markup(), parse_mode='Markdown')
         logger.debug(f"Scheduler: Отправлено уведомление пользователю {user_id} по ключу {key_id} (осталось {time_left_hours} ч).")
         
     except Exception as e:

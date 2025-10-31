@@ -271,7 +271,6 @@ _LEGACY_FORWARDERS = (
     "get_tickets_paginated",
     "get_total_keys_count",
     "get_total_spent_sum",
-    "get_monthly_income",
     "get_user",
     "get_user_count",
     "get_user_keys",
