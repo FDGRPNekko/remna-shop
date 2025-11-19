@@ -501,31 +501,9 @@ def create_webhook_app(bot_controller_instance):
     @flask_app.route('/users/table.partial')
     @login_required
     def users_table_partial():
-        page = request.args.get('page', type=int)
-        per_page = request.args.get('per_page', type=int)
-        q = request.args.get('q')
-
-        # if args missing, try to parse them from referrer so AJAX refresh keeps current page
-        if page is None or per_page is None or q is None:
-            ref = request.referrer or ''
-            if ref:
-                import urllib.parse as _u
-                try:
-                    parts = _u.urlparse(ref)
-                    qs = _u.parse_qs(parts.query)
-                    if page is None and 'page' in qs:
-                        try: page = int(qs.get('page',[1])[0])
-                        except: page = 1
-                    if per_page is None and 'per_page' in qs:
-                        try: per_page = int(qs.get('per_page',[25])[0])
-                        except: per_page = 25
-                    if q is None and 'q' in qs:
-                        q = qs.get('q',[''])[0]
-                except Exception:
-                    pass
-        page = page or 1
-        per_page = per_page or 25
-        q = (q or '').strip()
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 25, type=int)
+        q = (request.args.get('q') or '').strip()
         users, total = get_users_paginated(page=page, per_page=per_page, q=q or None)
         user_ids = [u['telegram_id'] for u in users]
         try:
@@ -538,7 +516,7 @@ def create_webhook_app(bot_controller_instance):
                 user['balance'] = float(user.get('balance') or 0.0)
             except Exception:
                 user['balance'] = 0.0
-            user['active_keys'] = int(keys_counts.get(uid, 0))
+            user['keys_count'] = int(keys_counts.get(uid, 0) or 0)
         return render_template('partials/users_table.html', users=users)
 
 
@@ -565,34 +543,13 @@ def create_webhook_app(bot_controller_instance):
     @flask_app.route('/users/pagination.partial')
     @login_required
     def users_pagination_partial():
-        page = request.args.get('page', type=int)
-        per_page = request.args.get('per_page', type=int)
-        q = request.args.get('q')
-        if page is None or per_page is None or q is None:
-            ref = request.referrer or ''
-            if ref:
-                import urllib.parse as _u
-                try:
-                    parts = _u.urlparse(ref)
-                    qs = _u.parse_qs(parts.query)
-                    if page is None and 'page' in qs:
-                        try: page = int(qs.get('page',[1])[0])
-                        except: page = 1
-                    if per_page is None and 'per_page' in qs:
-                        try: per_page = int(qs.get('per_page',[25])[0])
-                        except: per_page = 25
-                    if q is None and 'q' in qs:
-                        q = qs.get('q',[''])[0]
-                except Exception:
-                    pass
-        page = page or 1
-        per_page = per_page or 25
-        q = (q or '').strip()
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 25, type=int)
+        q = (request.args.get('q') or '').strip()
         _, total = get_users_paginated(page=page, per_page=per_page, q=q or None)
         from math import ceil
         total_pages = ceil(total / per_page) if per_page else 1
         return render_template('partials/users_pagination.html', current_page=page, total_pages=total_pages, q=q)
-
 
     @flask_app.route('/users/<int:user_id>/balance/adjust', methods=['POST'])
     @login_required
