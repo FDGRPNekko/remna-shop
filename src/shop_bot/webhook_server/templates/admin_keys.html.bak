@@ -101,21 +101,7 @@
 
 <div class="card">
   <div class="card-body">
-    
-<div class="mb-3 d-flex gap-2 align-items-center">
-  <form class="d-flex w-100" method="get" action="{{ url_for('admin_keys_page') }}">
-    <input class="form-control me-2" type="search" placeholder="Поиск по email, UUID, хосту или ID" aria-label="Search" name="q" value="{{ keys_query or '' }}">
-    <select name="per_page" class="form-select w-auto me-2">
-      <option value="10" {% if keys_per_page==10 %}selected{% endif %}>10</option>
-      <option value="25" {% if keys_per_page==25 %}selected{% endif %}>25</option>
-      <option value="50" {% if keys_per_page==50 %}selected{% endif %}>50</option>
-      <option value="100" {% if keys_per_page==100 %}selected{% endif %}>100</option>
-    </select>
-    <button class="btn btn-primary" type="submit">Найти</button>
-  </form>
-</div>
-
-<div class="table-responsive">
+    <div class="table-responsive">
       <table class="table table-vcenter">
         <thead>
           <tr>
@@ -162,22 +148,7 @@
           </tr>
           {% endfor %}
         </tbody>
-      
-</table>
-<nav aria-label="keys-pagination" class="mt-2">
-  <ul class="pagination">
-    {% if keys_page|int > 1 %}
-      <li class="page-item"><a class="page-link" href="{{ url_for('admin_keys_page') }}?page={{ keys_page-1 }}&per_page={{ keys_per_page }}{% if keys_query %}&q={{ keys_query }}{% endif %}">‹ Назад</a></li>
-    {% endif %}
-    {% for p in range(1, keys_total_pages+1) %}
-      <li class="page-item {% if p==keys_page %}active{% endif %}"><a class="page-link" href="{{ url_for('admin_keys_page') }}?page={{ p }}&per_page={{ keys_per_page }}{% if keys_query %}&q={{ keys_query }}{% endif %}">{{ p }}</a></li>
-    {% endfor %}
-    {% if keys_page|int < keys_total_pages|int %}
-      <li class="page-item"><a class="page-link" href="{{ url_for('admin_keys_page') }}?page={{ keys_page+1 }}&per_page={{ keys_per_page }}{% if keys_query %}&q={{ keys_query }}{% endif %}">Вперед ›</a></li>
-    {% endif %}
-  </ul>
-</nav>
-
+      </table>
     </div>
   </div>
 </div>

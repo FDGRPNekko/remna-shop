@@ -54,7 +54,7 @@
             <th class="w-1">Действия</th>
           </tr>
         </thead>
-        <tbody id="users-tbody" data-fetch-url="{{ url_for('users_table_partial') }}" data-fetch-interval="10000">
+        <tbody id="users-tbody" data-fetch-url="{{ url_for('users_table_partial', page=current_page, per_page=per_page, q=q) }}" data-fetch-interval="10000">
           {% for user in users %}
           <tr>
             <td class="user-id">{{ user.telegram_id }}</td>
@@ -131,7 +131,7 @@
 
 {% if total_pages and total_pages > 1 %}
 <div class="d-flex justify-content-center mt-3">
-  <ul id="users-pagination" data-fetch-url="{{ url_for('users_pagination_partial') }}" data-fetch-url="{{ url_for('users_pagination_partial') }}" class="pagination" data-src="{{ url_for('users_pagination_partial', page=current_page, q=q, per_page=per_page) }}">
+  <ul id="users-pagination" class="pagination" data-src="{{ url_for('users_pagination_partial', page=current_page, q=q, per_page=per_page) }}">
     {% include 'partials/users_pagination.html' %}
   </ul>
   </div>
