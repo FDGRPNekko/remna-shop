@@ -3124,3 +3124,20 @@ body.login-page {
 @media (max-width: 600px) {
 	.chat-message { max-width: 100%; }
 }
+
+/* FIX horizontal scroll */
+
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.horizontal-scroll::-webkit-scrollbar {
+    display: none;
+}
+.horizontal-scroll > * {
+    flex-shrink: 0;
+    margin: 0 6px;
+}
